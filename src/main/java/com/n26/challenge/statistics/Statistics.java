@@ -38,17 +38,19 @@ public class Statistics {
 		if( !mergeable( otherStatistics ) )
 			return;
 		
-		this.avg = (( otherStatistics.avg * otherStatistics.count ) + ( this.avg * this.count ) ) / ( otherStatistics.count + this.count );
+		this.avg = ( ( otherStatistics.avg * otherStatistics.count ) + ( this.avg * this.count ) ) / ( otherStatistics.count + this.count );
 		this.sum = otherStatistics.sum + this.sum;
 		this.count = otherStatistics.count + this.count;
-		this.max = Math.max(this.max, otherStatistics.max);
-		this.min = Math.min(this.min, otherStatistics.min);
+		this.max = Math.max( this.max, otherStatistics.max );
+		this.min = Math.min( this.min, otherStatistics.min );
 	}
 
 	private boolean mergeable( final Statistics otherStatistics ) {
 		
-		return 	otherStatistics != null && 
-				isValidTransactionTimestamp( otherStatistics.getTimestamp() );
+		return 	otherStatistics != null 
+				&& isValidTransactionTimestamp( otherStatistics.getTimestamp() )
+				&& otherStatistics.hasData()
+				&& ( !this.hasData() || this.getTimestamp() == 0 || areSameLumpTimestamps( this.timestamp, otherStatistics.getTimestamp() ) );
 	}
 
 	private boolean areSameLumpTimestamps( Long timestamp1, Long timestamp2 ) {
@@ -73,8 +75,13 @@ public class Statistics {
 		this.sum = 0.0;
 		this.avg = 0.0;
 		this.max = 0.0;
-		this.min = 0.0;
+		this.min = (double) Long.MAX_VALUE;
 		this.count = 0;
 		this.timestamp = 0L;
+	}
+	
+	public boolean hasData() {
+		
+		return count > 0;
 	}
 }

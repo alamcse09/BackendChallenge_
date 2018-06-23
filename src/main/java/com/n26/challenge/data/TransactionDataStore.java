@@ -1,5 +1,7 @@
 package com.n26.challenge.data;
 
+import java.util.Arrays;
+
 import org.springframework.stereotype.Component;
 
 import com.n26.challenge.statistics.Statistics;
@@ -25,6 +27,12 @@ public class TransactionDataStore {
 		cachedTransactionStatisticsLock = new Object();
 		
 		initializeLocks();
+	}
+	
+	public void reset() {
+		
+		Arrays.fill( statistics, null );
+		cachedStatistics.reset();
 	}
 	
 	private void initializeLocks() {
