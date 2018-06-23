@@ -35,7 +35,7 @@ public class Statistics {
 
 	public void mergeTransactionStatistics( Statistics otherStatistics ) {
 		
-		if( otherStatistics == null )
+		if( !mergeable( otherStatistics ) )
 			return;
 		
 		this.avg = (( otherStatistics.avg * otherStatistics.count ) + ( this.avg * this.count ) ) / ( otherStatistics.count + this.count );
@@ -45,12 +45,35 @@ public class Statistics {
 		this.min = Math.min(this.min, otherStatistics.min);
 	}
 
+	private boolean mergeable( final Statistics otherStatistics ) {
+		
+		return 	otherStatistics != null && 
+				isValidTransactionTimestamp( otherStatistics.getTimestamp() );
+	}
+
+	private boolean areSameLumpTimestamps( Long timestamp1, Long timestamp2 ) {
+		
+		final long lump1 = timestamp1 / 1000;
+		final long lump2 = timestamp2 / 1000;
+		return lump1 == lump2;
+	}
+
+	private boolean isValidTransactionTimestamp( final Long timestamp ) {
+		
+		return timestamp >= getEarliestValidTransactionTimestamp();
+	}
+
+	private Long getEarliestValidTransactionTimestamp() {
+		
+		return System.currentTimeMillis() - 60000;
+	}
+
 	public void reset() {
 		
 		this.sum = 0.0;
 		this.avg = 0.0;
-		this.max = (double) Long.MIN_VALUE;
-		this.min = (double) Long.MAX_VALUE;
+		this.max = 0.0;
+		this.min = 0.0;
 		this.count = 0;
 		this.timestamp = 0L;
 	}

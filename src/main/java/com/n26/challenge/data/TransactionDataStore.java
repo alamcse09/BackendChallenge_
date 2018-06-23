@@ -68,7 +68,7 @@ public class TransactionDataStore {
 						
 						cachedStatistics.mergeTransactionStatistics( statistics[i] );
 					}
-					cachedStatistics.setTimestamp(timestamp);
+					cachedStatistics.setTimestamp( timestamp );
 				}
 			}
 		}
