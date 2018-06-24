@@ -45,7 +45,7 @@ public class TransactionServiceTests {
 	@Test( expected = OutDatedTransactionException.class )
 	public void testExceptionUponInvalidTimestampInsert() throws OutDatedTransactionException {
 		
-		log.debug( "Trying to insert a transaction with 70 sec earlier time" );
+		log.debug( "Trying to insert a transaction with invalid time" );
 		Transaction transaction = new Transaction( Math.random() * 1000, time.getInvalidTimestamp() );
 		transactionService.insert( transaction );
 	}
@@ -88,7 +88,6 @@ public class TransactionServiceTests {
 		
 		final Statistics statistics = dataStore.getStats();
 		
-		log.debug( "Stats - {}", statistics );
 		log.debug( "Diff {}", Math.abs( sum - statistics.getSum() ) );
 		
 		assertEquals( sum, statistics.getSum(), EPSILON );
@@ -97,10 +96,6 @@ public class TransactionServiceTests {
 		assertEquals( max, statistics.getMax(), EPSILON );
 		assertEquals( count, statistics.getCount(), 0 );
 		
-		log.debug( "Stopped time {}", new Date( time.getCurrentTimestamp() ) );
-		
 		time.resumeTime();
-		
-		log.debug( "Real time {}", new Date( time.getCurrentTimestamp() ) );
 	}
 }
