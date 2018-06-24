@@ -23,3 +23,12 @@ curl -i localhost:8080/statistics
 ```
 
 You can also use a browser and go to `localhost:8080/statistics` to get statistics of last 60 seconds of transactions
+
+# Description:
+This is a Spring boot based Java web project. It accepts transaction via a POST endpoint and give statistics via GET endpoint as JSON.
+
+Both endpoints have a complexity of O(1).
+
+This is done by storing data in a fixed size array, where the indexes are a modulus of the timestamps. Depending on the time the statistics endpoint is called, output data contains transactions with a varying maximum age between under 59 and under 60 seconds.
+
+The transactions endpoint, which receives transactions via POST, always uses appr. 8 arithmetic operations. It's speed and performance is completely independent from how many transactions are being sent.
