@@ -5,7 +5,8 @@ API to store and get statistics of last 60 seconds of transactions.
 1.  Install [Maven](https://maven.apache.org/download.cgi) locally
 2.  Run: `mvn clean install`
 3.  Run: `cd target`
-4.  Rin: `java -jar challenge-0.0.1.jar`
+4.  Run: `java -jar challenge-0.0.1.jar`
+5.  You can turn on debug output by changing the debug level in `application.properties` file to **DEBUG**
 
 # Adding transactions 
 Run the following in your terminal:
