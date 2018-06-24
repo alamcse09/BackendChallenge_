@@ -39,6 +39,7 @@ public class TransactionServiceTests {
 	@Before
 	public void setUp() throws Exception {
 		
+		dataStore.reset();
 	}
 	
 	@Test( expected = OutDatedTransactionException.class )
@@ -61,7 +62,7 @@ public class TransactionServiceTests {
 		
 		for (int i = 0; i < Config.NUM_OF_TRANSACTIONS_FOR_TEST; i++) {
 			
-			final double amount = 1;//Math.random() * 1000;
+			final double amount = Math.random() * 1000;
 			
 			if ( Math.random() < 0.5D ) {
 				
@@ -87,13 +88,14 @@ public class TransactionServiceTests {
 		
 		final Statistics statistics = dataStore.getStats();
 		
+		log.debug( "Stats - {}", statistics );
 		log.debug( "Diff {}", Math.abs( sum - statistics.getSum() ) );
 		
-		assertEquals( statistics.getSum(), sum, EPSILON );
-		assertEquals( statistics.getAvg(), average, EPSILON );
-		assertEquals( statistics.getMin(), min, EPSILON );
-		assertEquals( statistics.getMax(), max, EPSILON );
-		assertEquals( statistics.getCount(), count, 0 );
+		assertEquals( sum, statistics.getSum(), EPSILON );
+		assertEquals( average, statistics.getAvg(), EPSILON );
+		assertEquals( min, statistics.getMin(), EPSILON );
+		assertEquals( max, statistics.getMax(), EPSILON );
+		assertEquals( count, statistics.getCount(), 0 );
 		
 		log.debug( "Stopped time {}", new Date( time.getCurrentTimestamp() ) );
 		

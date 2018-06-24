@@ -10,6 +10,9 @@ import com.n26.challenge.statistics.Statistics;
 import com.n26.challenge.time.Time;
 import com.n26.challenge.transaction.Transaction;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class TransactionDataStore {
 
@@ -72,15 +75,23 @@ public class TransactionDataStore {
 		
 		final long timestamp = time.getCurrentTimestamp();
 		
+		log.debug( "Get stats called. Cachestat timestamp: {}, currentTimestamp: {}. timediff: {}", cachedStatistics.getTimestamp(), timestamp, cachedStatistics.getTimestamp()-timestamp );
+		
 		if ( cachedStatistics.getTimestamp() < timestamp ) {
+			
+			log.debug( "Cache stats has lower timestamp. So re calculate" );
 			
 			synchronized ( cachedTransactionStatisticsLock ) {
 				
 				if ( cachedStatistics.getTimestamp() < timestamp ) {
 					
+					log.debug( "cacheStat reset" );
+					
 					cachedStatistics.reset();
 					
 					for ( int i = 0; i < statistics.length; i++ ) {
+						
+						log.debug( "Merging stats {}", statistics[i] );
 						
 						cachedStatistics.mergeTransactionStatistics( statistics[i] );
 					}

@@ -54,7 +54,6 @@ public class Statistics {
 		else {
 			
 			log.debug( "Not mergable {}", otherStatistics );
-			mergeable( otherStatistics );
 		}
 	}
 

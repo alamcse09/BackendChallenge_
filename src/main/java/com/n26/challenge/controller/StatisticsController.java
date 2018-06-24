@@ -22,7 +22,11 @@ public class StatisticsController {
 		log.debug( "Statistics get controller called" );
 		
 		Statistics stats = dataStore.getStats();
-		
+		if( !stats.hasData() ) {
+			
+			stats.setMax( 0.0 );
+			stats.setMin( 0.0 );
+		}
 		log.debug( "Sending statistics response- {}", stats );
 		
 		return stats;
