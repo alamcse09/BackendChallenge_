@@ -13,10 +13,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.n26.challenge.config.Config;
 import com.n26.challenge.data.TransactionDataStore;
-import com.n26.challenge.statistics.Statistics;
+import com.n26.challenge.models.Statistics;
+import com.n26.challenge.models.Transaction;
 import com.n26.challenge.time.Time;
-import com.n26.challenge.transaction.OutDatedTransactionException;
-import com.n26.challenge.transaction.Transaction;
+import com.n26.challenge.transaction.exception.OutDatedTransactionException;
 
 import lombok.extern.slf4j.Slf4j;
 

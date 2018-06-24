@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
-import com.n26.challenge.transaction.OutDatedTransactionException;
-import com.n26.challenge.transaction.Transaction;
+import com.n26.challenge.models.Transaction;
+import com.n26.challenge.transaction.exception.OutDatedTransactionException;
 import com.n26.challenge.transaction.service.TransactionService;
 
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.n26.challenge.transaction;
+package com.n26.challenge.transaction.exception;
 
 public class OutDatedTransactionException extends Exception {
 

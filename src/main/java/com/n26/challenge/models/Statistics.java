@@ -1,8 +1,7 @@
-package com.n26.challenge.statistics;
+package com.n26.challenge.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.n26.challenge.time.Time;
-import com.n26.challenge.transaction.Transaction;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

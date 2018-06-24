@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.n26.challenge.data.TransactionDataStore;
-import com.n26.challenge.statistics.Statistics;
+import com.n26.challenge.models.Statistics;
 
 import lombok.extern.slf4j.Slf4j;
 

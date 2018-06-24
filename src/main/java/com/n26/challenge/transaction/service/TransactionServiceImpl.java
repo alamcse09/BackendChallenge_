@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.n26.challenge.data.TransactionDataStore;
+import com.n26.challenge.models.Transaction;
 import com.n26.challenge.time.Time;
-import com.n26.challenge.transaction.OutDatedTransactionException;
-import com.n26.challenge.transaction.Transaction;
+import com.n26.challenge.transaction.exception.OutDatedTransactionException;
 
 import lombok.extern.slf4j.Slf4j;
 

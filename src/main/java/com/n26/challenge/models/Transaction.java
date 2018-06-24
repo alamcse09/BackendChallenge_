@@ -1,4 +1,4 @@
-package com.n26.challenge.transaction;
+package com.n26.challenge.models;
 
 import lombok.Data;
 
