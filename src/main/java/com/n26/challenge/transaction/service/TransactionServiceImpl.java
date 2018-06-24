@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.n26.challenge.data.TransactionDataStore;
+import com.n26.challenge.time.Time;
 import com.n26.challenge.transaction.OutDatedTransactionException;
 import com.n26.challenge.transaction.Transaction;
 
@@ -14,18 +15,23 @@ import lombok.extern.slf4j.Slf4j;
 public class TransactionServiceImpl implements TransactionService{
 
 	@Autowired
+	private Time time;
+	
+	@Autowired
 	private TransactionDataStore dataStore;
 	
 	public Transaction insert( Transaction transaction ) throws OutDatedTransactionException {
 		
-		assertNotOldTransaction( transaction );
-		return dataStore.insert( transaction );
+		assertNotOldTransaction( transaction.getTimestamp() );
+		Transaction transactionInserted = dataStore.insert( transaction );
+		
+		log.debug( "Transaction stored {}", transactionInserted );
+		return transactionInserted;
 	}
 
-	private void assertNotOldTransaction(Transaction transaction) throws OutDatedTransactionException {
+	private void assertNotOldTransaction( long timestamp ) throws OutDatedTransactionException {
 		
-		Long timeDiff = Math.abs( transaction.getTimestamp() - System.currentTimeMillis() );
-		if( timeDiff > 60*1000 ) {
+		if( time.isOutdatedTransaction( timestamp ) ) {
 			
 			log.debug( "Older than 60 seconds, Not inserted" );
 			throw new OutDatedTransactionException( "Transaction is old" );

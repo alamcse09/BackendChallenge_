@@ -2,9 +2,12 @@ package com.n26.challenge.data;
 
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.n26.challenge.config.Config;
 import com.n26.challenge.statistics.Statistics;
+import com.n26.challenge.time.Time;
 import com.n26.challenge.transaction.Transaction;
 
 @Component
@@ -16,13 +19,18 @@ public class TransactionDataStore {
 	private final Statistics cachedStatistics;
 	private final Object cachedTransactionStatisticsLock;
 	
-	public TransactionDataStore() {
+	private Time time;
+	
+	@Autowired
+	public TransactionDataStore( Time time ) {
 		
-		statistics = new Statistics[ 60000 / 1000 ];
+		this.time = time;
 		
-		locks = new Object[statistics.length];
+		statistics = new Statistics[ Config.SECONDS_TO_CONSIDER ];
 		
-		cachedStatistics = new Statistics();
+		locks = new Object[ statistics.length ];
+		
+		cachedStatistics = new Statistics( time );
 		
 		cachedTransactionStatisticsLock = new Object();
 		
@@ -49,7 +57,7 @@ public class TransactionDataStore {
 		
 		synchronized ( locks[index] ) {
 			
-			statistics[index] = new Statistics( transaction, statistics[index] );
+			statistics[index] = new Statistics( time, transaction, statistics[index] );
 		}
 		
 		return transaction;
@@ -62,13 +70,13 @@ public class TransactionDataStore {
 
 	public Statistics getStats() {
 		
-		final long timestamp = System.currentTimeMillis();
+		final long timestamp = time.getCurrentTimestamp();
 		
 		if ( cachedStatistics.getTimestamp() < timestamp ) {
 			
 			synchronized ( cachedTransactionStatisticsLock ) {
 				
-				if ( cachedStatistics.getTimestamp() < timestamp) {
+				if ( cachedStatistics.getTimestamp() < timestamp ) {
 					
 					cachedStatistics.reset();
 					

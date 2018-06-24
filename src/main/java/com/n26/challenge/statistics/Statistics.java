@@ -1,29 +1,37 @@
 package com.n26.challenge.statistics;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.n26.challenge.time.Time;
 import com.n26.challenge.transaction.Transaction;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
 public class Statistics {
 
-	private Double sum;
-	private Double avg;
-	private Double max;
-	private Double min;
-	private Integer count;
+	private double sum;
+	private double avg;
+	private double max;
+	private double min;
+	private long count;
 	
 	@JsonIgnore
-	private Long timestamp;
+	private final Time time;
 	
-	public Statistics() {
+	@JsonIgnore
+	private long timestamp;
+	
+	public Statistics( Time time ) {
 		
+		this.time = time;
 		reset();
 	}
 	
-	public Statistics( final Transaction transaction, final Statistics otherStatistics ) {
+	public Statistics( Time time, final Transaction transaction, final Statistics otherStatistics ) {
 		
+		this.time = time;
 		this.timestamp = transaction.getTimestamp();
 		this.sum = transaction.getAmount();
 		this.count = 1;
@@ -35,47 +43,34 @@ public class Statistics {
 
 	public void mergeTransactionStatistics( Statistics otherStatistics ) {
 		
-		if( !mergeable( otherStatistics ) )
-			return;
-		
-		this.avg = ( ( otherStatistics.avg * otherStatistics.count ) + ( this.avg * this.count ) ) / ( otherStatistics.count + this.count );
-		this.sum = otherStatistics.sum + this.sum;
-		this.count = otherStatistics.count + this.count;
-		this.max = Math.max( this.max, otherStatistics.max );
-		this.min = Math.min( this.min, otherStatistics.min );
+		if( mergeable( otherStatistics ) ) {
+			
+			this.avg = ( ( otherStatistics.avg * otherStatistics.count ) + ( this.avg * this.count ) ) / ( otherStatistics.count + this.count );
+			this.sum = otherStatistics.sum + this.sum;
+			this.count = otherStatistics.count + this.count;
+			this.max = Math.max( this.max, otherStatistics.max );
+			this.min = Math.min( this.min, otherStatistics.min );
+		}
+		else {
+			
+			log.debug( "Not mergable {}", otherStatistics );
+			mergeable( otherStatistics );
+		}
 	}
 
 	private boolean mergeable( final Statistics otherStatistics ) {
 		
 		return 	otherStatistics != null 
-				&& isValidTransactionTimestamp( otherStatistics.getTimestamp() )
-				&& otherStatistics.hasData()
-				&& ( !this.hasData() || this.getTimestamp() == 0 || areSameLumpTimestamps( this.timestamp, otherStatistics.getTimestamp() ) );
-	}
-
-	private boolean areSameLumpTimestamps( Long timestamp1, Long timestamp2 ) {
-		
-		final long lump1 = timestamp1 / 1000;
-		final long lump2 = timestamp2 / 1000;
-		return lump1 == lump2;
-	}
-
-	private boolean isValidTransactionTimestamp( final Long timestamp ) {
-		
-		return timestamp >= getEarliestValidTransactionTimestamp();
-	}
-
-	private Long getEarliestValidTransactionTimestamp() {
-		
-		return System.currentTimeMillis() - 60000;
+				&& !time.isOutdatedTransaction( otherStatistics.getTimestamp() )
+				&& otherStatistics.hasData();
 	}
 
 	public void reset() {
 		
 		this.sum = 0.0;
 		this.avg = 0.0;
-		this.max = 0.0;
-		this.min = (double) Long.MAX_VALUE;
+		this.max = Long.MIN_VALUE;
+		this.min = Long.MAX_VALUE;
 		this.count = 0;
 		this.timestamp = 0L;
 	}
