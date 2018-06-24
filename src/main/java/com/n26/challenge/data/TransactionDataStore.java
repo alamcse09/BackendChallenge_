@@ -31,7 +31,7 @@ public class TransactionDataStore {
 		
 		statistics = new Statistics[ Config.SECONDS_TO_CONSIDER ];
 		
-		locks = new Object[ statistics.length ];
+		locks = new Object[ Config.SECONDS_TO_CONSIDER ];
 		
 		cachedStatistics = new Statistics( time );
 		
