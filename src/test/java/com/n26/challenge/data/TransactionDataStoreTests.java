@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.n26.challenge.config.Config;
 import com.n26.challenge.statistics.Statistics;
+import com.n26.challenge.time.Time;
 import com.n26.challenge.transaction.Transaction;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 public class TransactionDataStoreTests {
 
+	private static final double EPSILON = 0.0001;
+
+	@Autowired
+	private Time time;
+	
 	@Autowired
 	private TransactionDataStore dataStore;
 	
@@ -31,6 +38,7 @@ public class TransactionDataStoreTests {
 	@Test
 	public void testEmptyStatsWithNothingPosted() {
 		
+		log.debug( "Testing with no transaction" );
 		Statistics stat = dataStore.getStats();
 		assertFalse( stat.hasData() );
 	}
@@ -38,7 +46,9 @@ public class TransactionDataStoreTests {
 	@Test
 	public void testSameDataWithOneTransaction() {
 		
-		final Transaction transaction = new Transaction( Math.random(), System.currentTimeMillis() );
+		log.debug( "Testing with one transaction" );
+		final Transaction transaction = new Transaction( Math.random(), time.getCurrentTimestamp() );
+		
 		dataStore.insert( transaction );
 		
 		Statistics stat = dataStore.getStats();
@@ -53,11 +63,13 @@ public class TransactionDataStoreTests {
 	@Test
 	public void testDataStoreForMultipleValidTransaction() {
 		
+		log.debug( "Testing with multiple valid transaction" );
+		
 		double sum = 0;
 		double max = Double.MIN_VALUE;
 		double min = Double.MAX_VALUE;
 		
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < Config.NUM_OF_TRANSACTIONS_FOR_TEST; i++) {
 			
 			final double amount = Math.random() * 1000;
 			
@@ -66,31 +78,46 @@ public class TransactionDataStoreTests {
 			max = Math.max(max, amount);
 			min = Math.min(min, amount);
 			
-			dataStore.insert( new Transaction( amount, System.currentTimeMillis() ) );
+			dataStore.insert( new Transaction( amount, time.getValidTimestamp() ) );
 		}
 		
-		final double average = sum / 10;
+		final double average = sum / Config.NUM_OF_TRANSACTIONS_FOR_TEST;
+		
+		log.debug( "Total {} num of transaction inserted. Sum: {}, Max: {}, Min: {}, Avg: {}", Config.NUM_OF_TRANSACTIONS_FOR_TEST, sum, max, min, average );
 		
 		final Statistics stats = dataStore.getStats();
 		
-		assertEquals( stats.getSum(), sum, 0.00001 );
-		assertEquals( stats.getAvg(), average, 0.00001 );
-		assertEquals( stats.getMin(), min, 0.00001 );
-		assertEquals( stats.getMax(), max, 0.00001 );
-		assertEquals( stats.getCount(), 10, 0 );
+		log.debug( "Stats got - {}", stats );
+		
+		assertEquals( stats.getSum(), sum, EPSILON );
+		assertEquals( stats.getAvg(), average, EPSILON );
+		assertEquals( stats.getMin(), min, EPSILON );
+		assertEquals( stats.getMax(), max, EPSILON );
+		assertEquals( stats.getCount(), Config.NUM_OF_TRANSACTIONS_FOR_TEST, 0 );
 	}
 	
 	@Test
-	public void testEmptyDataAfterPassingOneMinute() throws InterruptedException {
+	public void testEmptyStatsAfterTwoMinutesOfLastTransaction() {
 		
-		for (int i = 0; i < 10; i++) {
+		log.debug( "Testing not stat after two minutes of transaction" );
+		
+		time.stopTime();
+		
+		for (int i = 0; i < Config.NUM_OF_TRANSACTIONS_FOR_TEST; i++) {
 			
-			dataStore.insert( new Transaction( Math.random(), System.currentTimeMillis() ) );
+			dataStore.insert( new Transaction( Math.random(), time.getValidTimestamp() ) );
 		}
 		
-		Thread.sleep( 70000 );
+		time.goToFuture( 120000 );
+		
 		Statistics stats = dataStore.getStats();
+		
+		log.debug( "Stat got after going to future {}", stats );
+		
+		time.resumeTime();
+		time.resetToPresentTime();
+		
 		assertFalse( stats.hasData() );
 	}
-
+	
 }

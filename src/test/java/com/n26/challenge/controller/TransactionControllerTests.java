@@ -1,7 +1,5 @@
 package com.n26.challenge.controller;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,6 +17,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.google.gson.Gson;
+import com.n26.challenge.time.Time;
 import com.n26.challenge.transaction.Transaction;
 import com.n26.challenge.transaction.service.TransactionService;
 
@@ -29,8 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 public class TransactionControllerTests {
 
-	@Mock
-	private TransactionService transactionService;
+	@Autowired
+	private Time time;
 	
 	@Autowired
 	private WebApplicationContext context;
@@ -55,8 +54,7 @@ public class TransactionControllerTests {
 	@Test
 	public void insertTransactionTest() throws Exception {
 		
-		Transaction currentTransaction = new Transaction( 12.5, System.currentTimeMillis() );
-		Transaction oldTransaction = new Transaction( 12.5, System.currentTimeMillis() - 62000 );
+		Transaction currentTransaction = new Transaction( 12.5, time.getCurrentTimestamp() );
 		
 		log.debug( "Performing post request with data - {}", currentTransaction );
 		mockMvc
@@ -64,6 +62,8 @@ public class TransactionControllerTests {
 					.contentType( MediaType.APPLICATION_JSON_UTF8 )
 					.content( gson.toJson( currentTransaction) ) )
 			.andExpect( status().isCreated() );
+		
+		Transaction oldTransaction = new Transaction( 12.5, time.getInvalidTimestamp() );
 		
 		log.debug( "Performing post request with data - {}", oldTransaction );
 		mockMvc
